@@ -9,13 +9,16 @@ const app = express()
 
 app.set('trust proxy', true)
 
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+
 const traffic: Record<string, number[]> = {}
+const messages: string[] = []
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   const now = Date.now()
 
   let ip = ''
-
   const forwarded = req.headers['x-forwarded-for']
 
   if (typeof forwarded === 'string') {
@@ -42,27 +45,50 @@ app.get('/', (req: Request, res: Response) => {
   const publicIp = (req as any).publicIp
 
   let trafficList = ""
-
   for (let ip in traffic) {
     let count = traffic[ip].length
     let status = count > 20 ? "SUSPICIOUS" : "NORMAL"
     trafficList += `<p>${ip} - ${count} requests (5s) - ${status}</p>`
   }
 
+  let messageList = ""
+  messages.forEach(m => {
+    messageList += `<p>${m}</p>`
+  })
+
   res.type('html').send(`
     <!doctype html>
     <html>
       <head>
         <meta charset="utf-8"/>
-        <title>Express on Vercel</title>
+        <title>Traffic Monitor</title>
       </head>
       <body>
         <h1>Traffic Monitor</h1>
         <p>Your Public IP: <b>${publicIp}</b></p>
+
+        <h2>Kirim Pesan</h2>
+        <form method="POST" action="/submit">
+          <input type="text" name="message" placeholder="ketik sesuatu" required />
+          <button type="submit">Kirim</button>
+        </form>
+
+        <h2>Daftar Pesan</h2>
+        ${messageList}
+
+        <h2>Traffic</h2>
         ${trafficList}
       </body>
     </html>
   `)
+})
+
+app.post('/submit', (req: Request, res: Response) => {
+  const message = req.body.message
+  if (message) {
+    messages.push(message)
+  }
+  res.redirect('/')
 })
 
 export default app
