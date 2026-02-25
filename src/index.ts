@@ -64,7 +64,7 @@ app.get('/', (req: Request, res: Response) => {
         <title>Traffic Monitor</title>
       </head>
       <body>
-        <h1>Traffic Monitor</h1>
+        <h1 class="judul">Traffic Monitor</h1>
         <p>Your Public IP: <b>${publicIp}</b></p>
 
         <h2>Kirim Pesan</h2>
