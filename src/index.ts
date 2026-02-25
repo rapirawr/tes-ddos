@@ -63,14 +63,54 @@ app.get('/', (req: Request, res: Response) => {
         <meta charset="utf-8"/>
         <title>Traffic Monitor</title>
         <style>
-          body {
-            font-family: system-ui, sans-serif;
-            margin: 2rem;
-            line-height: 1.5;
-          }
-          nav a {
-            margin-right: 1rem;
-          }
+body {
+  font-family: system-ui, sans-serif;
+  margin: 2rem;
+  line-height: 1.6;
+  background-color: #f5f5f5;
+  color: #222;
+}
+
+h1 {
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+form {
+  margin-bottom: 1rem;
+}
+
+input[type="text"] {
+  padding: 0.5rem;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 0.5rem 0.8rem;
+  border: none;
+  background-color: #333;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #555;
+}
+
+p {
+  margin: 0.3rem 0;
+  background: white;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
         </style>
       </head>
       <body>
