@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -9,12 +9,22 @@ const app = express()
 
 app.set('trust proxy', true)
 
-const traffic = {}
+const traffic: Record<string, number[]> = {}
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const now = Date.now()
+
+  let ip = ''
+
   const forwarded = req.headers['x-forwarded-for']
-  const ip = forwarded ? forwarded.split(',')[0].trim() : req.socket.remoteAddress
+
+  if (typeof forwarded === 'string') {
+    ip = forwarded.split(',')[0].trim()
+  } else if (Array.isArray(forwarded)) {
+    ip = forwarded[0]
+  } else {
+    ip = req.socket.remoteAddress || 'unknown'
+  }
 
   if (!traffic[ip]) {
     traffic[ip] = []
@@ -23,12 +33,14 @@ app.use((req, res, next) => {
   traffic[ip].push(now)
   traffic[ip] = traffic[ip].filter(time => now - time < 5000)
 
-  req.publicIp = ip
+  ;(req as any).publicIp = ip
 
   next()
 })
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
+  const publicIp = (req as any).publicIp
+
   let trafficList = ""
 
   for (let ip in traffic) {
@@ -43,42 +55,14 @@ app.get('/', (req, res) => {
       <head>
         <meta charset="utf-8"/>
         <title>Express on Vercel</title>
-        <link rel="stylesheet" href="/style.css" />
       </head>
       <body>
-        <nav>
-          <a href="/">Home</a>
-          <a href="/about">About</a>
-          <a href="/api-data">API Data</a>
-          <a href="/healthz">Health</a>
-        </nav>
-
-        <h1>Welcome to Express on Vercel</h1>
-        <p>Your Public IP: <b>${req.publicIp}</b></p>
-
-        <h2>Traffic Monitor (5s window)</h2>
+        <h1>Traffic Monitor</h1>
+        <p>Your Public IP: <b>${publicIp}</b></p>
         ${trafficList}
-
-        <img src="/logo.png" alt="Logo" width="120" />
       </body>
     </html>
   `)
-})
-
-app.get('/about', function (req, res) {
-  res.sendFile(path.join(__dirname, '..', 'components', 'about.htm'))
-})
-
-app.get('/api-data', (req, res) => {
-  res.json({
-    message: 'Here is some sample API data',
-    items: ['apple', 'banana', 'cherry'],
-    yourIp: req.publicIp
-  })
-})
-
-app.get('/healthz', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
 export default app
