@@ -62,6 +62,16 @@ app.get('/', (req: Request, res: Response) => {
       <head>
         <meta charset="utf-8"/>
         <title>Traffic Monitor</title>
+        <style>
+          body {
+            font-family: system-ui, sans-serif;
+            margin: 2rem;
+            line-height: 1.5;
+          }
+          nav a {
+            margin-right: 1rem;
+          }
+        </style>
       </head>
       <body>
         <h1 class="judul">Traffic Monitor</h1>
